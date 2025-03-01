@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <cstdlib>
 #include <ctime>
+#include <omp.h> 
+#include <chrono>
 
 using namespace std;
 
@@ -31,17 +33,37 @@ vector<vector<double>> generateRandomMatrix(int size) {
     return matrix;
 }
 
+// vector<vector<double>> matrixMultiply(const vector<vector<double>>& a, const vector<vector<double>>& b) {
+//     int rowsA = a.size(), colsA = a[0].size(), colsB = b[0].size();
+//     vector<vector<double>> result(rowsA, vector<double>(colsB));
+
+//     for (int i = 0; i < rowsA; i++) {
+//         for (int j = 0; j < colsB; j++) {
+//             double sum = 0.0;
+//             for (int k = 0; k < colsA; k++) {
+//                 sum += a[i][k] * b[k][j];
+//             }
+//             result[i][j] = sum;
+//         }
+//     }
+//     return result;
+// }
+
+
 vector<vector<double>> matrixMultiply(const vector<vector<double>>& a, const vector<vector<double>>& b) {
     int rowsA = a.size(), colsA = a[0].size(), colsB = b[0].size();
     vector<vector<double>> result(rowsA, vector<double>(colsB));
-    for (int i = 0; i < rowsA; i++) {
-        for (int j = 0; j < colsB; j++) {
-            double sum = 0;
-            for (int k = 0; k < colsA; k++)
-                sum += a[i][k] * b[k][j];
-            result[i][j] = sum;
+
+    #pragma omp parallel for collapse(2)
+    for (int i = 0; i < rowsA; ++i) {
+        for (int j = 0; j < colsB; ++j) {
+                double sum = 0.0;
+                for (int k = 0; k < colsA; ++k) {
+                    sum += a[i][k] * b[k][j];
+                }
+                result[i][j] = sum;
+            }
         }
-    }
     return result;
 }
 
@@ -63,17 +85,18 @@ int main(int argc, char* argv[]) {
     string mat1_filename = "mat1.txt";
     string mat2_filename = "mat2.txt";
 
-    for (int size = 10, i = 0; size <= 10000; ++i) {
+    for (int size = 10, i = 0; size <= 500; ++i) {
         vector<vector<double>> matrix1 = generateRandomMatrix(size);
         vector<vector<double>> matrix2 = generateRandomMatrix(size);
 
         writeMatrixToFile(mat1_filename.c_str(), matrix1);
         writeMatrixToFile(mat2_filename.c_str(), matrix2);
 
-        clock_t start = clock();
+        auto start = chrono::high_resolution_clock::now();
         vector<vector<double>> result = matrixMultiply(matrix1, matrix2);
-        clock_t end = clock();
-        double time = (double)(end - start) / CLOCKS_PER_SEC;
+        auto end = chrono::high_resolution_clock::now();
+
+        chrono::duration<double> time = (end - start);
 
         writeMatrixToFile(result_filename.c_str(), result);
 
@@ -92,9 +115,9 @@ int main(int argc, char* argv[]) {
         pclose(pipe);
 
         ofstream outputFile(argv[1], ios::app);
-        outputFile << size << "," << time << "," << output;
+        outputFile << size << "," << time.count() << "," << output;
 
-        cout << "Time taken: " << time << " seconds" << endl;
+        cout << "Time taken: " << time.count() << " seconds" << endl;
         cout << "Task size: " << size << "x" << size << " * " << size << "x" << size << " = " << size << "x" << size << endl;
 
         if(i >= 100) {
