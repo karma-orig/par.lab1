@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-data_parallel = pd.read_csv('parallel.txt')
+data_parallel = pd.read_csv('cuda.txt')
 data_iterative = pd.read_csv('iteration.txt')
 
 matrix_size_parallel = data_parallel['Matrixsizexsize(random)']
@@ -18,7 +18,7 @@ grouped_iterative = df_iterative.groupby('Matrix Size').mean().reset_index()
 
 plt.figure(figsize=(12, 8))
 
-plt.plot(grouped_parallel['Matrix Size'], grouped_parallel['Time (s)'], marker='o', linestyle='-', color='b', label='Parallel OpenMP')
+plt.plot(grouped_parallel['Matrix Size'], grouped_parallel['Time (s)'], marker='o', linestyle='-', color='b', label='Cuda 16 x 16')
 
 plt.plot(grouped_iterative['Matrix Size'], grouped_iterative['Time (s)'], marker='x', linestyle='--', color='r', label='Iterative Method')
 
@@ -29,6 +29,6 @@ plt.ylabel('Average Time (s)')
 plt.legend()
 plt.grid(True, which='both', linestyle='--', linewidth=0.5)
 
-plt.savefig('comparison_average_time_vs_matrix_size_log.png')
+plt.savefig('cuda_16_16_vs_iteration.png')
 
 plt.show()
