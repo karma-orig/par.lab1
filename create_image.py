@@ -1,8 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-data_parallel = pd.read_csv('parallel.txt')
-data_iterative = pd.read_csv('iteration.txt')
+data_parallel = pd.read_csv('par.txt')
+data_iterative = pd.read_csv('ite.txt')
 
 matrix_size_parallel = data_parallel['Matrixsizexsize(random)']
 time_parallel = data_parallel['Time(s)']
@@ -18,7 +18,7 @@ grouped_iterative = df_iterative.groupby('Matrix Size').mean().reset_index()
 
 plt.figure(figsize=(12, 8))
 
-plt.plot(grouped_parallel['Matrix Size'], grouped_parallel['Time (s)'], marker='o', linestyle='-', color='b', label='Parallel OpenMP')
+plt.plot(grouped_parallel['Matrix Size'], grouped_parallel['Time (s)'], marker='o', linestyle='-', color='b', label='Parallel MPI')
 
 plt.plot(grouped_iterative['Matrix Size'], grouped_iterative['Time (s)'], marker='x', linestyle='--', color='r', label='Iterative Method')
 
